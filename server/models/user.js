@@ -13,4 +13,4 @@ var User =mongoose.model('users',{
         trim:true
     }
 });
-module.exports={User};
+module.exports = {User};

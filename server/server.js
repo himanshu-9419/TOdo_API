@@ -18,13 +18,23 @@ app.post('/todos',(req,res)=>{
     res.send(doc);
     },(e)=>{
     res.status(400).send(e);
+    })
 })
 
+app.get('/todos',(req,res)=>{
+    Todo.find().then((todos)=>{
+        res.send({todos}),
+        (e)=>{response.status(400).send(e);}
+    }) 
 })
+
+
 
 app.listen(3000,()=>{
     console.log("at port");
 });
+
+module.exports = app;
 
 // var newTodo= new Todo({
 //     text:'cooked food', completed:true,completedAt:1000
