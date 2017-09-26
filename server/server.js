@@ -6,6 +6,8 @@ var {mongoose}=require('./db/mongoose.js');
 var {Todo}=require('./models/todo.js');
 var {User}=require('./models/user.js');
 
+var _=require('lodash');
+
 const port=process.env.PORT || 3000;
 
 var app=express();
@@ -43,6 +45,42 @@ app.get('/todos/:id',(req,res)=>{
         res.status(404).send();
     })
     //res.send(req.params.id + id );
+})
+
+app.delete('/todos/:id',(req,res)=>{
+    debugger;
+    var id=req.params.id;
+    if(!ObjectID.isValid(id)){
+        return res.status(404).send({result:"not fund"});
+    }
+Todo.findByIdAndRemove(id).then((todo)=>{
+    if(!todo) {res.status(404).send();}
+    else {res.send(todo);}
+}).catch((err)=>{ 
+    res.status(404).send(err);
+}); 
+});
+
+app.patch('/todos/:id',(req,res)=>{
+    var id=req.params.id;
+    var body=_.pick(req.body,['text','completed']);
+    if(!ObjectID.isValid(id)){
+        return res.status(404).send({result:"not fund"});
+    }
+    if(_.isBoolean(body.completed) && body.completed){
+        body.completedAt=new Date().getTime();
+    }
+    else {
+        body.completedAt=null;
+        body.complete=false;
+    }
+
+    Todo.findByIdAndUpdate(id,{$set:body},{new:true}).then((todo)=>{
+        if(!todo) res.status(404).send();
+        else res.send(todo);
+    }).catch((e)=>{
+        res.status(404).send();
+    });
 })
 
 app.listen(port,()=>{
