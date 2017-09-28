@@ -1,12 +1,11 @@
 const express=require('express');
 const bodyParser=require('body-parser');
+const _=require('lodash');
 var {ObjectID}=require('mongodb');
 
 var {mongoose}=require('./db/mongoose.js');
 var {Todo}=require('./models/todo.js');
 var {User}=require('./models/user.js');
-
-var _=require('lodash');
 
 const port=process.env.PORT || 3000;
 
@@ -82,6 +81,22 @@ app.patch('/todos/:id',(req,res)=>{
         res.status(404).send();
     });
 })
+
+
+app.post('/users',(req,res)=>{
+    var body=_.pick(req.body,['name','email','password']);
+    var user=new User({
+        name:body.name,
+        email:body.email,
+        password:body.password
+    });
+    user.save().then((doc)=>{
+    res.send(doc);
+    },(e)=>{
+    res.status(400).send(e);
+    })
+})
+
 
 app.listen(port,()=>{
     console.log("at port"+port);
