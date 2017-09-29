@@ -73,6 +73,18 @@ UserSchema.statics.findByToken=function (token){
     })
 }
 
+UserSchema.methods.removeToken=function(token){
+    var user=this;
+    user.update({
+        $pull:{
+            tokens:{
+                token:token
+            }
+        }
+    })
+}
+
+
 UserSchema.pre('save',function(next){
     var user=this;
     if(user.isModified('password')){

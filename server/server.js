@@ -1,6 +1,7 @@
 const express=require('express');
 const bodyParser=require('body-parser');
 const _=require('lodash');
+const bcrypt=require('bcryptjs')
 var {ObjectID}=require('mongodb');
 
 var {mongoose}=require('./db/mongoose.js');
@@ -31,6 +32,32 @@ app.get('/todos',(req,res)=>{
         res.send({todos}),
         (e)=>{response.status(400).send(e);}
     }) 
+})
+
+app.post('/users/login',(req,res)=>{
+    var userDetail=_.pick(req.body,['name','email','password']);
+    User.findOne({
+        email:userDetail.email
+    }).then((user)=>{
+        var hashedpassword=user.password;
+        console.log(hashedpassword);
+        bcrypt.compare(userDetail.password,hashedpassword,(err,result)=>{
+            if(err) res.status(401).send(err);
+            console.log(result);
+            res.header('x-auth',user.tokens[0].token).send(user);
+        })
+    }).catch((err)=>{
+        res.status(401).send(err);
+    })
+    
+})
+
+app.delete('users/me/token',authenticate,(req,res)=>{
+    req.user.removeToken(req.token).then(()=>{
+        res.status(200).send();
+    },()=>{
+        res.status(400).send();
+    })
 })
 
 app.get('/todos/:id',(req,res)=>{
