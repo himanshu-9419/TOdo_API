@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const _ = require('lodash');
 const bcrypt = require('bcryptjs')
 var { ObjectID } = require('mongodb');
+const config=require('./config/config.js')
 
 var { mongoose } = require('./db/mongoose.js');
 var { Todo } = require('./models/todo.js');
