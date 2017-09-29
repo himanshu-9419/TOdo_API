@@ -84,19 +84,28 @@ app.patch('/todos/:id',(req,res)=>{
 
 
 app.post('/users',(req,res)=>{
+    debugger;
     var body=_.pick(req.body,['name','email','password']);
-    var user=new User({
-        name:body.name,
-        email:body.email,
-        password:body.password
-    });
-    user.save().then((doc)=>{
-    res.send(doc);
-    },(e)=>{
+    var user=new User(body);
+    //console.log("email is"+user.email);
+    //console.log("user is"+JSON.stringify(user));
+    user.save().then(()=>{
+        //console.log("creating token");
+        return user.generateAuthToken()    
+    }).then((token)=>{
+        //console.log("sending token");
+        res.header('x-auth',token).send(user);
+    }).catch((e)=>{
+       // console.log(e);
     res.status(400).send(e);
-    })
+    });
 })
 
+
+app.get('/users/me',(req,res)=>{
+    var token=req.header('x-auth');
+    User.findByToken(token);
+})
 
 app.listen(port,()=>{
     console.log("at port"+port);
